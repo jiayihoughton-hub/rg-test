@@ -7,6 +7,7 @@ any api.github.com request (1000 req/hr authenticated), then run the fetch.
 Release-asset downloads go to a different host and are left untouched.
 """
 import os
+from urllib.parse import urlparse
 
 import requests
 
@@ -15,7 +16,10 @@ if _token:
     _orig = requests.sessions.Session.request
 
     def _patched(self, method, url, *args, **kwargs):
-        if "api.github.com" in str(url):
+        # Exact hostname match (no substring) so the token is only ever sent to
+        # the real GitHub API, never a look-alike like api.github.com.evil.com.
+        host = (urlparse(str(url)).hostname or "").lower().rstrip(".")
+        if host == "api.github.com":
             headers = dict(kwargs.get("headers") or {})
             headers.setdefault("Authorization", f"Bearer {_token}")
             kwargs["headers"] = headers
