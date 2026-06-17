@@ -14,7 +14,7 @@ on:
       count_per_job:
         description: "accounts to register per job"
         required: false
-        default: "2"
+        default: "5"
       domains:
         description: "CloudMail domains, comma-separated (jobs spread across them; OpenAI caps ~20/domain)"
         required: false
@@ -22,7 +22,7 @@ on:
       threshold:
         description: "只有活跃账号数低于此值才注册(维持目标池大小)"
         required: false
-        default: "200"
+        default: "400"
 
 jobs:
   # 先查活号数：>= threshold 就不跑注册矩阵，cron 自我调节、不过量注册。
@@ -82,7 +82,7 @@ jobs:
         run: python fetch_camoufox.py
 
       - name: Register
-        timeout-minutes: 4
+        timeout-minutes: 10
         env:
           CLOUDMAIL_BASE_URL: ${{ secrets.CLOUDMAIL_BASE_URL }}
           CLOUDMAIL_PASSWORD: ${{ secrets.CLOUDMAIL_PASSWORD }}
