@@ -22,7 +22,7 @@ on:
       threshold:
         description: "只有活跃账号数低于此值才注册(维持目标池大小)"
         required: false
-        default: "400"
+        default: "500"
 
 jobs:
   # 先查活号数：>= threshold 就不跑注册矩阵，cron 自我调节、不过量注册。
@@ -83,7 +83,7 @@ jobs:
         run: python fetch_camoufox.py
 
       - name: Register
-        timeout-minutes: 6
+        timeout-minutes: 8
         env:
           CLOUDMAIL_BASE_URL: ${{ secrets.CLOUDMAIL_BASE_URL }}
           CLOUDMAIL_PASSWORD: ${{ secrets.CLOUDMAIL_PASSWORD }}
@@ -100,7 +100,7 @@ jobs:
           # Wall-clock budget: stop opening new accounts past this, so the job
           # finishes cleanly before the 6-min step timeout (no kill mid-write).
           # ~48s/account => fits count_per_job up to ~5 within the window.
-          JOB_BUDGET_SECONDS: "280"
+          JOB_BUDGET_SECONDS: "500"
           PYTHONUNBUFFERED: "1"
         run: |
           xvfb-run -a python register_sub2api_oauth.py "${{ github.event.inputs.count_per_job || '1' }}"
