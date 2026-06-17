@@ -901,7 +901,11 @@ def browser_oauth_signup(cfg, mail_provider, oauth_session=None, auth_url=None, 
 
             email_done = pwd_done = otp_done = about_done = False
             otp_sent_at = time.time()
-            deadline = time.time() + 360
+            try:
+                _budget = max(60, int(os.getenv("OAUTH_DEADLINE_SECONDS", "150")))
+            except ValueError:
+                _budget = 150
+            deadline = time.time() + _budget
             last_state = ""
             while time.time() < deadline and not captured["code"]:
                 cur = ""
