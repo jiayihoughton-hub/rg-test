@@ -55,7 +55,7 @@ jobs:
           SUB2API_EMAIL: ${{ secrets.SUB2API_EMAIL }}
           SUB2API_PASSWORD: ${{ secrets.SUB2API_PASSWORD }}
           SUB2API_GROUP: ${{ secrets.SUB2API_GROUP }}
-          VERIFY_PROXY: ""
+          VERIFY_PROXY: ${{ secrets.VERIFY_PROXY }}
           PYTHONUNBUFFERED: "1"
         run: |
           xvfb-run -a python register_sub2api_oauth.py "${{ github.event.inputs.count_per_job || '1' }}"
