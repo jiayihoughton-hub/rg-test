@@ -106,24 +106,31 @@ def main():
     log.info(f"group '{client.sold_group_spec}' -> id {group_id}")
 
     # 墙钟预算：在 Register 步硬超时前主动收尾，避免被 kill 在写号中途、误判 failure。
+    # 预留按实测均速自适应：号建得快就少留、把窗口用满。
     import time as _t
     try:
         budget = int(os.getenv("JOB_BUDGET_SECONDS", "0"))
     except ValueError:
         budget = 0
-    per_acct_reserve = 120  # 单个号最坏耗时(含浏览器启动)，预留这么多才敢再开一个
     start = _t.monotonic()
+    durations: list[float] = []
 
     ok = 0
     for i in range(count):
-        if budget and i > 0 and (_t.monotonic() - start) > (budget - per_acct_reserve):
-            log.info(f"==== 预算将尽({int(_t.monotonic()-start)}s/{budget}s)，提前收尾，已完成 {i} 个 ====")
-            break
+        if budget and i > 0:
+            avg = (sum(durations) / len(durations)) if durations else 90.0
+            reserve = max(45.0, avg * 1.3)  # 预留 ~1.3 倍单号均耗，才敢再开一个
+            elapsed = _t.monotonic() - start
+            if elapsed > (budget - reserve):
+                log.info(f"==== 预算收尾({int(elapsed)}s/{budget}s, 单号均~{int(avg)}s), 已完成 {i} 个 ====")
+                break
         log.info(f"==== {i + 1}/{count} ====")
+        t0 = _t.monotonic()
         try:
             r = run_one(client, group_id)
         except Exception as exc:  # noqa: BLE001
             r = {"ok": False, "stage": "exception", "error": str(exc)}
+        durations.append(_t.monotonic() - t0)
         log.info(f"result: {r}")
         if r.get("ok"):
             ok += 1
