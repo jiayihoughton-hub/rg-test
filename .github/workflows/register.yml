@@ -38,12 +38,13 @@ jobs:
 
       - name: Install browser system libs (Firefox/Camoufox)
         run: |
-          python -m playwright install-deps firefox || sudo apt-get update && sudo apt-get install -y \
-            libgtk-3-0 libx11-xcb1 libasound2t64 libdbus-glib-1-2 libxtst6 xvfb || true
-          sudo apt-get install -y xvfb || true
+          python -m playwright install-deps firefox || true
+          sudo apt-get update && sudo apt-get install -y xvfb || true
 
       - name: Fetch Camoufox browser + geoip
-        run: python -m camoufox fetch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python fetch_camoufox.py
 
       - name: Register
         env:
