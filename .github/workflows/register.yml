@@ -22,7 +22,7 @@ on:
       threshold:
         description: "只有活跃账号数低于此值才注册(维持目标池大小)"
         required: false
-        default: "600"
+        default: "300"
 
 jobs:
   # 先查活号数：>= threshold 就不跑注册矩阵，cron 自我调节、不过量注册。
