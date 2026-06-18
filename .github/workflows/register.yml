@@ -8,7 +8,7 @@ on:
   schedule:
     # 每 30 分钟(UTC)。定时触发只用 inputs 默认值(count_per_job=2 + 默认域名列表)。
     # 仅在默认分支运行；仓库 60 天无提交会被 GitHub 自动停用定时。
-    - cron: "*/30 * * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:
     inputs:
       count_per_job:
